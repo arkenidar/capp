@@ -1,29 +1,17 @@
 package com.capp.app;
 
-import androidx.appcompat.app.AppCompatActivity;
+import org.libsdl.app.SDLActivity;
 import android.os.Bundle;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends SDLActivity {
 
     static {
         System.loadLibrary("capp_native");
     }
 
-    private native void initLua(String assetsPath);
-    public native double runLuaFrame(long ticks_ms);
-    private native void closeLua();
-
-    private GameView gameView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        // Create game view (renders Lua output)
-        gameView = new GameView(this);
-        setContentView(gameView);
-
-        // Copy app.lua from assets to files directory so native code can access it
+        // Copy app.lua from assets to files directory for SDL_main to find
         try {
             String appLuaContent = new String(readAsset("app.lua"));
             java.io.File appLuaFile = new java.io.File(getFilesDir(), "app.lua");
@@ -31,14 +19,12 @@ public class MainActivity extends AppCompatActivity {
             fos.write(appLuaContent.getBytes());
             fos.close();
 
-            String appLuaPath = appLuaFile.getAbsolutePath();
-            android.util.Log.i("capp_lua", "app.lua copied to: " + appLuaPath);
-
-            // Initialize Lua VM with path to copied app.lua
-            initLua(appLuaPath);
+            android.util.Log.i("capp", "app.lua copied to: " + appLuaFile.getAbsolutePath());
         } catch (Exception e) {
-            android.util.Log.e("capp_lua", "Failed to copy app.lua: " + e.getMessage());
+            android.util.Log.e("capp", "Failed to copy app.lua: " + e.getMessage());
         }
+
+        super.onCreate(savedInstanceState);
     }
 
     private byte[] readAsset(String filename) throws java.io.IOException {
@@ -48,30 +34,5 @@ public class MainActivity extends AppCompatActivity {
         is.read(buffer);
         is.close();
         return buffer;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (gameView != null) {
-            gameView.onResume();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (gameView != null) {
-            gameView.onPause();
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (gameView != null) {
-            gameView.stop();
-        }
-        closeLua();
-        super.onDestroy();
     }
 }

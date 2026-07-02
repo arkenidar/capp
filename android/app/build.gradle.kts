@@ -31,10 +31,17 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    sourceSets {
+        main {
+            java.srcDirs += "${project.rootDir}/../SDL2/android-project/app/src/main/java"
+        }
+    }
+
     externalNativeBuild {
         cmake {
             path = file("../CMakeLists.txt")
             version = "3.22.1"
+            arguments.add("-DANDROID_SDL2_PATH=${project.rootDir}/../SDL2")
         }
     }
 
