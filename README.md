@@ -4,8 +4,16 @@ A checkerboard animation demo using SDL2 with both pure C and embedded Lua imple
 
 ## Quick Start
 
+**Linux**
+
 ```bash
 cd ~/Dropbox/app/capp && mkdir -p build && cd build && cmake .. && make && ./capp_lua
+```
+
+**Windows** (MSYS2 MinGW64 shell)
+
+```bash
+cd /c/code/capp && mkdir -p build && cd build && cmake -G Ninja .. && ninja && ./capp_lua.exe
 ```
 
 ## Features
@@ -25,7 +33,18 @@ cd ~/Dropbox/app/capp && mkdir -p build && cd build && cmake .. && make && ./cap
 - CMake 3.10+
 - C compiler (gcc/clang)
 
+On **Windows**, the recommended toolchain is [MSYS2](https://www.msys2.org/) with MinGW64.
+From the MSYS2 MinGW64 shell, install the prerequisites:
+
+```bash
+pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-cmake mingw-w64-x86_64-ninja mingw-w64-x86_64-SDL2
+# Optional: system Lua (otherwise the vendored minilua is used automatically)
+pacman -S mingw-w64-x86_64-lua
+```
+
 ### Build Steps
+
+**Linux**
 
 ```bash
 cd ~/Dropbox/app/capp
@@ -35,9 +54,19 @@ cmake ..
 make
 ```
 
+**Windows** (MSYS2 MinGW64 shell)
+
+```bash
+cd /c/code/capp
+mkdir build
+cd build
+cmake -G Ninja ..
+ninja
+```
+
 This builds both targets:
-- `./capp` — Pure C version
-- `./capp_lua` — Lua-embedded version (if Lua is found, or minilua is available)
+- `capp` (`capp.exe` on Windows) — Pure C version
+- `capp_lua` (`capp_lua.exe` on Windows) — Lua-embedded version (if Lua is found, or minilua is available)
 
 #### Lua Variant Selection
 
@@ -60,12 +89,24 @@ The `capp_lua` target will automatically use whichever Lua implementation is sel
 
 ## Running
 
+**Linux**
+
 ```bash
 # Pure C version
 ./capp
 
 # Lua-embedded version
 ./capp_lua
+```
+
+**Windows** (MSYS2 MinGW64 shell)
+
+```bash
+# Pure C version
+./capp.exe
+
+# Lua-embedded version
+./capp_lua.exe
 ```
 
 Press **Escape** or close the window to exit.
