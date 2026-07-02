@@ -8,4 +8,4 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
 find_package(SDL2 REQUIRED)
 
 add_executable(capp src/main.c)
-target_link_libraries(capp SDL2::SDL2)
+target_link_libraries(capp ${SDL2_LIBRARIES})
