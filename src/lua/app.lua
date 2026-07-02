@@ -1,7 +1,5 @@
 local sdl = require("sdl")
 
-local WINDOW_WIDTH = 800
-local WINDOW_HEIGHT = 600
 local CELL_SIZE = 40
 local FPS = 60
 
@@ -10,10 +8,20 @@ if sdl.init(sdl.INIT_VIDEO) < 0 then
     os.exit(1)
 end
 
+local dm = sdl.get_desktop_display_mode(0)
+if dm == nil then
+    sdl.log_error(sdl.LOG_CATEGORY_APPLICATION, "SDL_GetDesktopDisplayMode failed: " .. sdl.get_error())
+    sdl.quit()
+    os.exit(1)
+end
+
+local WINDOW_WIDTH = dm.w
+local WINDOW_HEIGHT = dm.h
+
 local window = sdl.create_window(
     "Checkerboard Demo",
-    sdl.WINDOWPOS_CENTERED,
-    sdl.WINDOWPOS_CENTERED,
+    0,
+    0,
     WINDOW_WIDTH,
     WINDOW_HEIGHT,
     sdl.WINDOW_SHOWN
@@ -24,6 +32,10 @@ if window == nil then
     sdl.quit()
     os.exit(1)
 end
+
+sdl.set_window_bordered(window, sdl.FALSE)
+sdl.set_window_position(window, 0, 0)
+sdl.set_window_size(window, WINDOW_WIDTH, WINDOW_HEIGHT)
 
 local renderer = sdl.create_renderer(window, -1, sdl.RENDERER_ACCELERATED + sdl.RENDERER_PRESENTVSYNC)
 

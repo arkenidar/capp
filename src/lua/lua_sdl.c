@@ -171,6 +171,48 @@ static int lua_sdl_rect_new(lua_State *L) {
     return 1;
 }
 
+static int lua_sdl_get_desktop_display_mode(lua_State *L) {
+    int display_index = luaL_checkinteger(L, 1);
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(display_index, &dm) != 0) {
+        lua_pushnil(L);
+        return 1;
+    }
+    lua_createtable(L, 0, 4);
+    lua_pushinteger(L, dm.w);
+    lua_setfield(L, -2, "w");
+    lua_pushinteger(L, dm.h);
+    lua_setfield(L, -2, "h");
+    lua_pushinteger(L, dm.refresh_rate);
+    lua_setfield(L, -2, "refresh_rate");
+    lua_pushinteger(L, dm.format);
+    lua_setfield(L, -2, "format");
+    return 1;
+}
+
+static int lua_sdl_set_window_bordered(lua_State *L) {
+    SDL_Window **window = luaL_checkudata(L, 1, SDL_WINDOW_METATABLE);
+    SDL_bool bordered = luaL_checkinteger(L, 2);
+    SDL_SetWindowBordered(*window, bordered);
+    return 0;
+}
+
+static int lua_sdl_set_window_position(lua_State *L) {
+    SDL_Window **window = luaL_checkudata(L, 1, SDL_WINDOW_METATABLE);
+    int x = luaL_checkinteger(L, 2);
+    int y = luaL_checkinteger(L, 3);
+    SDL_SetWindowPosition(*window, x, y);
+    return 0;
+}
+
+static int lua_sdl_set_window_size(lua_State *L) {
+    SDL_Window **window = luaL_checkudata(L, 1, SDL_WINDOW_METATABLE);
+    int w = luaL_checkinteger(L, 2);
+    int h = luaL_checkinteger(L, 3);
+    SDL_SetWindowSize(*window, w, h);
+    return 0;
+}
+
 static const luaL_Reg sdl_funcs[] = {
     {"init", lua_sdl_init},
     {"quit", lua_sdl_quit},
@@ -191,6 +233,10 @@ static const luaL_Reg sdl_funcs[] = {
     {"event_type", lua_sdl_event_type},
     {"event_key_scancode", lua_sdl_event_key_scancode},
     {"rect_new", lua_sdl_rect_new},
+    {"get_desktop_display_mode", lua_sdl_get_desktop_display_mode},
+    {"set_window_bordered", lua_sdl_set_window_bordered},
+    {"set_window_position", lua_sdl_set_window_position},
+    {"set_window_size", lua_sdl_set_window_size},
     {NULL, NULL}
 };
 
@@ -223,6 +269,9 @@ int luaopen_sdl(lua_State *L) {
 
     lua_pushinteger(L, SDL_SCANCODE_ESCAPE);
     lua_setfield(L, -2, "SCANCODE_ESCAPE");
+
+    lua_pushinteger(L, SDL_FALSE);
+    lua_setfield(L, -2, "FALSE");
 
     luaL_newmetatable(L, SDL_WINDOW_METATABLE);
     lua_pop(L, 1);
