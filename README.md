@@ -16,6 +16,16 @@ cd ~/Dropbox/app/capp && mkdir -p build && cd build && cmake .. && make && ./cap
 cd /c/code/capp && mkdir -p build && cd build && cmake -G Ninja .. && ninja && ./capp_lua.exe
 ```
 
+**Android** (Build APK with Gradle)
+
+```bash
+cd android
+./gradlew assembleDebug
+# APK: app/build/outputs/apk/debug/app-debug.apk
+```
+
+See [android/README.md](android/README.md) for detailed Android build instructions.
+
 ## Features
 
 - **Pure C version** (`capp`) — Direct SDL2 rendering
@@ -109,7 +119,20 @@ The `capp_lua` target will automatically use whichever Lua implementation is sel
 ./capp_lua.exe
 ```
 
-Press **Escape** or close the window to exit.
+**Android**
+
+```bash
+cd android
+
+# Build APK
+./gradlew assembleDebug
+
+# Install and run on device
+./gradlew installDebug
+adb shell am start -n com.capp.app/.MainActivity
+```
+
+Press **Escape** or close the window to exit (desktop/Android with keyboard).
 
 ## Architecture
 

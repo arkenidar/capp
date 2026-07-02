@@ -1,0 +1,21 @@
+# Gradle files
+.gradle
+build/
+*.gradle.lock
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Android
+.DS_Store
+*.apk
+*.aab
+local.properties
+keystore.properties
+
+# Gradle wrapper (JAR is generated via setup-gradle.sh or gradle wrapper command)
+gradle/wrapper/gradle-wrapper.jar

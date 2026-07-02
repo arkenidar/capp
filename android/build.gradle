@@ -1,0 +1,2 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+// Repositories are configured in settings.gradle.kts to avoid conflicts in Gradle 8.2+
