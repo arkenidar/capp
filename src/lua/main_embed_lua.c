@@ -1,6 +1,4 @@
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include "lua_compat.h"
 #include <SDL2/SDL.h>
 #include <stdio.h>
 

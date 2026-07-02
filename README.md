@@ -12,7 +12,7 @@ cd ~/Dropbox/app/capp && mkdir -p build && cd build && cmake .. && make && ./cap
 
 - **Pure C version** (`capp`) — Direct SDL2 rendering
 - **Lua-embedded version** (`capp_lua`) — Lua VM with SDL2 C API bindings
-  - Works with any Lua version (PUC-Lua, minilua, LuaJIT, Lua 5.4+)
+  - Works with system-installed Lua (5.1+), falls back to vendored minilua if unavailable
   - Game logic in Lua, rendering in C
   - Easily extensible C API bindings
 
@@ -21,7 +21,7 @@ cd ~/Dropbox/app/capp && mkdir -p build && cd build && cmake .. && make && ./cap
 ### Prerequisites
 
 - SDL2 development libraries
-- Lua (5.1+) development libraries
+- Lua (5.1+) development libraries (optional — minilua will be used as a fallback if not found)
 - CMake 3.10+
 - C compiler (gcc/clang)
 
@@ -37,7 +37,26 @@ make
 
 This builds both targets:
 - `./capp` — Pure C version
-- `./capp_lua` — Lua-embedded version
+- `./capp_lua` — Lua-embedded version (if Lua is found, or minilua is available)
+
+#### Lua Variant Selection
+
+By default, the build will:
+1. Use system-installed Lua if `find_package(Lua)` succeeds
+2. Fall back to the vendored minilua if system Lua is not found (and `CAPP_USE_MINILUA=ON`)
+3. Skip building `capp_lua` if neither system Lua nor minilua are available (and `CAPP_USE_MINILUA=OFF`)
+
+To explicitly control this behavior:
+
+```bash
+# Use only system Lua, disable minilua fallback
+cmake -DCAPP_USE_MINILUA=OFF ..
+
+# Force use of vendored minilua even if system Lua is found
+cmake -DCAPP_FORCE_MINILUA=ON ..
+```
+
+The `capp_lua` target will automatically use whichever Lua implementation is selected. System Lua takes priority unless `CAPP_FORCE_MINILUA=ON` is set.
 
 ## Running
 

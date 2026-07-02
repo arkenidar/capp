@@ -1,6 +1,4 @@
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include "lua_compat.h"
 #include <SDL2/SDL.h>
 
 #define SDL_WINDOW_METATABLE "SDL_Window"
