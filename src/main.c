@@ -1,8 +1,6 @@
 #include <SDL2/SDL.h>
 #include <stdbool.h>
 
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
 #define CELL_SIZE 40
 #define FPS 60
 
@@ -12,12 +10,19 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    SDL_DisplayMode dm;
+    if (SDL_GetDesktopDisplayMode(0, &dm) != 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
     SDL_Window *window = SDL_CreateWindow(
         "Checkerboard Demo",
-        SDL_WINDOWPOS_CENTERED,
-        SDL_WINDOWPOS_CENTERED,
-        WINDOW_WIDTH,
-        WINDOW_HEIGHT,
+        0,
+        0,
+        dm.w,
+        dm.h,
         SDL_WINDOW_SHOWN
     );
 
@@ -26,6 +31,10 @@ int main(int argc, char *argv[]) {
         SDL_Quit();
         return 1;
     }
+
+    SDL_SetWindowBordered(window, SDL_FALSE);
+    SDL_SetWindowPosition(window, 0, 0);
+    SDL_SetWindowSize(window, dm.w, dm.h);
 
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if (!renderer) {
@@ -61,8 +70,8 @@ int main(int argc, char *argv[]) {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
         SDL_RenderClear(renderer);
 
-        for (int y = 0; y < WINDOW_HEIGHT; y += CELL_SIZE) {
-            for (int x = 0; x < WINDOW_WIDTH; x += CELL_SIZE) {
+        for (int y = 0; y < dm.h; y += CELL_SIZE) {
+            for (int x = 0; x < dm.w; x += CELL_SIZE) {
                 int pattern_x = (x + shift) / CELL_SIZE;
                 int pattern_y = y / CELL_SIZE;
                 bool is_white = (pattern_x + pattern_y) % 2 == 0;
