@@ -38,7 +38,7 @@ target_include_directories(capp_native PRIVATE
     ../src/lua/minilua
 )
 
-target_compile_definitions(capp_native PRIVATE CAPP_USE_MINILUA_IMPL)
+target_compile_definitions(capp_native PRIVATE CAPP_USE_MINILUA_IMPL CAPP_ANDROID_APK)
 target_link_libraries(capp_native minilua m log SDL2::SDL2)
 
 # Include SDL2 headers

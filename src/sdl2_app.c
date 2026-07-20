@@ -4,7 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __ANDROID__
+/* CAPP_ANDROID_APK is defined only by android/CMakeLists.txt, which links
+ * against SDL2's Android JNI glue (Activity, nativeInit -> SDL_main).
+ * Plain __ANDROID__ is not enough: Termux's clang also targets bionic and
+ * defines it, but a Termux binary is a normal executable with no JNI
+ * bridge, so the Android-only SDL calls below have nothing to call into. */
+#ifdef CAPP_ANDROID_APK
 #include <android/log.h>
 #include <SDL2/SDL_system.h>
 #define LOG_TAG "capp"
@@ -18,13 +23,13 @@
 extern int luaopen_sdl(lua_State *L);
 
 /* Get the path to app.lua
- * Desktop: looks in build directory and source directory
- * Android: uses SDL_AndroidGetInternalStoragePath()
+ * Desktop / Termux: looks in build directory and source directory
+ * Android APK: uses SDL_AndroidGetInternalStoragePath()
  */
 static const char* get_app_lua_path(void) {
     static char path[512] = {0};
 
-#ifdef __ANDROID__
+#ifdef CAPP_ANDROID_APK
     const char *files_dir = SDL_AndroidGetInternalStoragePath();
     snprintf(path, sizeof(path), "%s/app.lua", files_dir);
     LOGI("Using Android app.lua path: %s", path);
@@ -50,7 +55,7 @@ static const char* get_app_lua_path(void) {
     return path;
 }
 
-#ifdef __ANDROID__
+#ifdef CAPP_ANDROID_APK
 int SDL_main(int argc, char *argv[]) {
 #else
 int main(int argc, char *argv[]) {
