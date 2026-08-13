@@ -8,6 +8,9 @@ Use Android Studio (easiest approach):
 
 1. Download Android Studio: https://developer.android.com/studio
 2. Install with default options (includes SDK, NDK, Gradle)
+
+> **Windows note:** if Android Studio was installed to a custom location (not the default `%LOCALAPPDATA%\Programs\Android Studio`), the executable is typically at `<install-dir>\bin\studio64.exe` — e.g. `C:\code\0apps\android\android-studio\bin\studio64.exe`.
+
 3. In Android Studio: **File > Open > [path to android/]**
 4. Wait for Gradle sync
 5. Click **Build > Build Bundle(s)/APK(s) > Build APK(s)**

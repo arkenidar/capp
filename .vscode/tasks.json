@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open Android project in Android Studio",
+            "type": "shell",
+            "command": "\"C:\\code\\0apps\\android\\android-studio\\bin\\studio64.exe\" \"${workspaceFolder}\\android\"",
+            "problemMatcher": [],
+            "presentation": {
+                "reveal": "silent"
+            }
+        }
+    ]
+}
