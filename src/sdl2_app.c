@@ -20,7 +20,7 @@
 #define LOGE(fmt, ...) fprintf(stderr, "[ERROR] " fmt "\n", ##__VA_ARGS__)
 #endif
 
-extern int luaopen_sdl(lua_State *L);
+#include "lua_sdl.h"
 
 /* Get the path to app.lua
  * Desktop / Termux: looks in build directory and source directory
@@ -41,14 +41,14 @@ static const char* get_app_lua_path(void) {
         return "app.lua";
     }
 
-    /* Try source directory */
-    f = fopen("src/lua/app.lua", "r");
+    /* Try source directory (default app; see CAPP_APP in CMakeLists.txt) */
+    f = fopen("src/lua/apps/memory_game.lua", "r");
     if (f) {
         fclose(f);
-        return "src/lua/app.lua";
+        return "src/lua/apps/memory_game.lua";
     }
 
-    LOGE("app.lua not found in current directory or src/lua/");
+    LOGE("app.lua not found in current directory or src/lua/apps/");
     return NULL;
 #endif
 
@@ -71,8 +71,9 @@ int main(int argc, char *argv[]) {
     luaL_openlibs(L);
     LOGI("Lua state initialized with standard libraries");
 
-    /* Register SDL module */
+    /* Register SDL module (core bindings + gfx/font/touch extensions) */
     luaL_requiref(L, "sdl", luaopen_sdl, 1);
+    lua_sdl_register_gfx(L);
     lua_pop(L, 1);
     LOGI("SDL module registered");
 

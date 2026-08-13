@@ -1,5 +1,10 @@
 #include "lua_compat.h"
+#include "lua_sdl.h"
 #include <SDL2/SDL.h>
+
+#ifdef CAPP_ANDROID_APK
+#include <SDL2/SDL_system.h>
+#endif
 
 #define SDL_WINDOW_METATABLE "SDL_Window"
 #define SDL_RENDERER_METATABLE "SDL_Renderer"
@@ -213,6 +218,23 @@ static int lua_sdl_set_window_size(lua_State *L) {
     return 0;
 }
 
+/* Resolve a path relative to the app's asset bundle. On Android APKs, assets
+ * are copied by MainActivity into internal storage (see get_app_lua_path in
+ * sdl2_app.c for the same pattern); on desktop/Termux, CMake copies the
+ * assets/ directory next to the binary, so relative paths already work. */
+static int lua_sdl_get_asset_path(lua_State *L) {
+    const char *rel = luaL_checkstring(L, 1);
+#ifdef CAPP_ANDROID_APK
+    static char path[512];
+    const char *files_dir = SDL_AndroidGetInternalStoragePath();
+    snprintf(path, sizeof(path), "%s/%s", files_dir, rel);
+    lua_pushstring(L, path);
+#else
+    lua_pushstring(L, rel);
+#endif
+    return 1;
+}
+
 static const luaL_Reg sdl_funcs[] = {
     {"init", lua_sdl_init},
     {"quit", lua_sdl_quit},
@@ -237,6 +259,7 @@ static const luaL_Reg sdl_funcs[] = {
     {"set_window_bordered", lua_sdl_set_window_bordered},
     {"set_window_position", lua_sdl_set_window_position},
     {"set_window_size", lua_sdl_set_window_size},
+    {"get_asset_path", lua_sdl_get_asset_path},
     {NULL, NULL}
 };
 
