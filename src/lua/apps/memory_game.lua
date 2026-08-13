@@ -123,8 +123,8 @@ local function compute_layout(w, h, header_height)
 
     local grid_w = best_cols * best_cell + gap * (best_cols - 1)
     local grid_h = best_rows * best_cell + gap * (best_rows - 1)
-    local grid_x = margin + (avail_w - grid_w) / 2
-    local grid_y = header_height + margin + (avail_h - grid_h) / 2
+    local grid_x = margin + math.floor((avail_w - grid_w) / 2)
+    local grid_y = header_height + margin + math.floor((avail_h - grid_h) / 2)
 
     local positions = {}
     for r = 0, best_rows - 1 do
