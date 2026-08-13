@@ -11,28 +11,45 @@ public class MainActivity extends SDLActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Copy app.lua from assets to files directory for SDL_main to find
+        // Copy the whole assets/ bundle (app.lua, fonts/*, ...) into the
+        // writable files dir for SDL_main and sdl.get_asset_path() to find.
+        // Copies raw bytes, not through a Java String, so binary assets
+        // (fonts, images) survive intact.
         try {
-            String appLuaContent = new String(readAsset("app.lua"));
-            java.io.File appLuaFile = new java.io.File(getFilesDir(), "app.lua");
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(appLuaFile);
-            fos.write(appLuaContent.getBytes());
-            fos.close();
-
-            android.util.Log.i("capp", "app.lua copied to: " + appLuaFile.getAbsolutePath());
+            copyAssetTree("", getFilesDir());
         } catch (Exception e) {
-            android.util.Log.e("capp", "Failed to copy app.lua: " + e.getMessage());
+            android.util.Log.e("capp", "Failed to copy assets: " + e.getMessage());
         }
 
         super.onCreate(savedInstanceState);
     }
 
-    private byte[] readAsset(String filename) throws java.io.IOException {
-        java.io.InputStream is = getAssets().open(filename);
-        int size = is.available();
-        byte[] buffer = new byte[size];
-        is.read(buffer);
-        is.close();
-        return buffer;
+    /* Only ever called with a path already known to be a directory (see the
+     * grandchildren check below), so entries is never a leaf file itself. */
+    private void copyAssetTree(String assetPath, java.io.File destDir) throws java.io.IOException {
+        String[] entries = getAssets().list(assetPath);
+        for (String entry : entries) {
+            String childAssetPath = assetPath.isEmpty() ? entry : assetPath + "/" + entry;
+            String[] grandchildren = getAssets().list(childAssetPath);
+            if (grandchildren != null && grandchildren.length > 0) {
+                java.io.File childDestDir = new java.io.File(destDir, entry);
+                childDestDir.mkdirs();
+                copyAssetTree(childAssetPath, childDestDir);
+            } else {
+                copyAssetFile(childAssetPath, new java.io.File(destDir, entry));
+            }
+        }
+    }
+
+    private void copyAssetFile(String assetPath, java.io.File destFile) throws java.io.IOException {
+        try (java.io.InputStream is = getAssets().open(assetPath);
+             java.io.FileOutputStream os = new java.io.FileOutputStream(destFile)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = is.read(buffer)) != -1) {
+                os.write(buffer, 0, read);
+            }
+        }
+        android.util.Log.i("capp", "Copied asset " + assetPath + " to " + destFile.getAbsolutePath());
     }
 }

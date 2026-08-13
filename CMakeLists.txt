@@ -12,6 +12,7 @@ find_package(Lua QUIET)
 
 option(CAPP_USE_MINILUA "Fall back to vendored minilua when system Lua is not found" ON)
 option(CAPP_FORCE_MINILUA "Force use of vendored minilua even if system Lua is found" OFF)
+set(CAPP_APP "memory_game" CACHE STRING "Which src/lua/apps/<name>.lua to build as app.lua")
 
 add_executable(capp src/main.c)
 target_link_libraries(capp ${SDL2_LIBRARIES})
@@ -19,17 +20,9 @@ target_link_libraries(capp ${SDL2_LIBRARIES})
 # Build unified SDL2 app with embedded Lua
 if(LUA_FOUND AND NOT CAPP_FORCE_MINILUA)
 	message(STATUS "Building SDL2 app with system Lua")
-	add_executable(capp_lua src/sdl2_app.c src/lua/lua_sdl.c)
+	add_executable(capp_lua src/sdl2_app.c src/lua/lua_sdl.c src/lua/lua_sdl_gfx.c src/stb/stb_impl.c)
 	target_link_libraries(capp_lua ${SDL2_LIBRARIES} ${LUA_LIBRARIES})
-	target_include_directories(capp_lua PRIVATE src/lua ${LUA_INCLUDE_DIR})
-
-	# Copy app.lua to build directory
-	add_custom_command(TARGET capp_lua POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_SOURCE_DIR}/src/lua/app.lua
-			${CMAKE_BINARY_DIR}/app.lua
-		COMMENT "Copying app.lua to build directory"
-	)
+	target_include_directories(capp_lua PRIVATE src/lua ${LUA_INCLUDE_DIR} src/stb)
 elseif(CAPP_USE_MINILUA)
 	message(STATUS "Building SDL2 app with vendored minilua")
 	# Create a static library from minilua
@@ -38,18 +31,28 @@ elseif(CAPP_USE_MINILUA)
 	target_link_libraries(minilua PRIVATE m)
 
 	# Build SDL2 app using minilua
-	add_executable(capp_lua src/sdl2_app.c src/lua/lua_sdl.c)
+	add_executable(capp_lua src/sdl2_app.c src/lua/lua_sdl.c src/lua/lua_sdl_gfx.c src/stb/stb_impl.c)
 	target_link_libraries(capp_lua ${SDL2_LIBRARIES} minilua)
-	target_include_directories(capp_lua PRIVATE src/lua src/lua/minilua)
+	target_include_directories(capp_lua PRIVATE src/lua src/lua/minilua src/stb)
 	target_compile_definitions(capp_lua PRIVATE CAPP_USE_MINILUA_IMPL)
-
-	# Copy app.lua to build directory for easy access
-	add_custom_command(TARGET capp_lua POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy
-			${CMAKE_SOURCE_DIR}/src/lua/app.lua
-			${CMAKE_BINARY_DIR}/app.lua
-		COMMENT "Copying app.lua to build directory"
-	)
 else()
 	message(STATUS "System Lua not found and CAPP_USE_MINILUA is OFF; skipping capp_lua target")
+endif()
+
+if(TARGET capp_lua)
+	# Copy the selected app (see CAPP_APP) to the build directory as app.lua
+	add_custom_command(TARGET capp_lua POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_SOURCE_DIR}/src/lua/apps/${CAPP_APP}.lua
+			${CMAKE_BINARY_DIR}/app.lua
+		COMMENT "Copying src/lua/apps/${CAPP_APP}.lua to build directory as app.lua"
+	)
+
+	# Copy shared assets (fonts, ...) next to app.lua
+	add_custom_command(TARGET capp_lua POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_directory
+			${CMAKE_SOURCE_DIR}/assets
+			${CMAKE_BINARY_DIR}/assets
+		COMMENT "Copying assets/ to build directory"
+	)
 endif()

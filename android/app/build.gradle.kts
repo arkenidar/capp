@@ -57,3 +57,20 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 }
+
+// Keep assets/app.lua and assets/fonts in sync with the toolkit's source of
+// truth (src/lua/apps/ and the repo-root assets/ dir) instead of hand
+// maintaining a second copy that can go stale. Mirrors the desktop build's
+// CMake POST_BUILD copy step in ../../CMakeLists.txt.
+val syncToolkitApp = tasks.register<Copy>("syncToolkitApp") {
+    from("${project.rootDir}/../src/lua/apps/memory_game.lua")
+    rename("memory_game.lua", "app.lua")
+    from("${project.rootDir}/../assets/fonts") {
+        into("fonts")
+    }
+    into("src/main/assets")
+}
+
+tasks.named("preBuild") {
+    dependsOn(syncToolkitApp)
+}

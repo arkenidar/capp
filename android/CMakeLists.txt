@@ -29,6 +29,8 @@ target_link_libraries(minilua PRIVATE m)
 set(SOURCES
     ../src/sdl2_app.c
     ../src/lua/lua_sdl.c
+    ../src/lua/lua_sdl_gfx.c
+    ../src/stb/stb_impl.c
 )
 
 add_library(capp_native SHARED ${SOURCES})
@@ -36,6 +38,7 @@ add_library(capp_native SHARED ${SOURCES})
 target_include_directories(capp_native PRIVATE
     ../src/lua
     ../src/lua/minilua
+    ../src/stb
 )
 
 target_compile_definitions(capp_native PRIVATE CAPP_USE_MINILUA_IMPL CAPP_ANDROID_APK)
