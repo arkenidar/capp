@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.application") version "8.7.0"
+    id("com.android.application") version "9.3.1"
 }
 
 android {
@@ -17,6 +17,12 @@ android {
         ndk {
             abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
         }
+
+        externalNativeBuild {
+            cmake {
+                arguments += "-DANDROID_SDL2_PATH=${project.rootDir}/../SDL2"
+            }
+        }
     }
 
     buildTypes {
@@ -32,8 +38,8 @@ android {
     }
 
     sourceSets {
-        main {
-            java.srcDirs += "${project.rootDir}/../SDL2/android-project/app/src/main/java"
+        getByName("main") {
+            java.srcDirs("${project.rootDir}/../SDL2/android-project/app/src/main/java")
         }
     }
 
@@ -41,7 +47,6 @@ android {
         cmake {
             path = file("../CMakeLists.txt")
             version = "3.22.1"
-            arguments.add("-DANDROID_SDL2_PATH=${project.rootDir}/../SDL2")
         }
     }
 
