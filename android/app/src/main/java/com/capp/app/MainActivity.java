@@ -24,7 +24,8 @@ public class MainActivity extends SDLActivity {
         // contains unrelated framework assets merged in from dependencies.
         try {
             copyAssetFile("app.lua", new java.io.File(getFilesDir(), "app.lua"));
-            java.io.File fontsDir = new java.io.File(getFilesDir(), "fonts");
+            java.io.File assetsDir = new java.io.File(getFilesDir(), "assets");
+            java.io.File fontsDir = new java.io.File(assetsDir, "fonts");
             fontsDir.mkdirs();
             copyAssetTree("fonts", fontsDir);
         } catch (Exception e) {
