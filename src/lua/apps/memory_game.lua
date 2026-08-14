@@ -52,6 +52,31 @@ if renderer == nil then
     os.exit(1)
 end
 
+-- Load fonts (and their texture atlases) as early as possible, before any
+-- other setup work. On some Android devices, the window-focus-change that
+-- follows shortly after activity start triggers a redraw on Android's own
+-- (Java-side) UI thread; if that lands at the same moment as our own first
+-- big GPU upload (the font atlas texture), it can race the platform's EGL
+-- driver. Racing to get the upload done first avoids the overlap in
+-- practice - empirically, deferring it with a delay instead made the crash
+-- more consistent, not less.
+local FONT_SMALL_SIZE = math.floor(math.min(WINDOW_WIDTH, WINDOW_HEIGHT) * 0.035)
+local FONT_BIG_SIZE = math.floor(math.min(WINDOW_WIDTH, WINDOW_HEIGHT) * 0.09)
+local HEADER_HEIGHT = FONT_SMALL_SIZE * 3
+
+local FONT_PATH = sdl.get_asset_path("assets/fonts/PressStart2P-Regular.ttf")
+
+local font_small = sdl.load_font(renderer, FONT_PATH, FONT_SMALL_SIZE)
+local font_big = sdl.load_font(renderer, FONT_PATH, FONT_BIG_SIZE)
+
+if font_small == nil or font_big == nil then
+    sdl.log_error(sdl.LOG_CATEGORY_APPLICATION, "Failed to load font from " .. FONT_PATH)
+    sdl.destroy_renderer(renderer)
+    sdl.destroy_window(window)
+    sdl.quit()
+    os.exit(1)
+end
+
 math.randomseed(os.time())
 
 --- helpers ------------------------------------------------------------
@@ -142,23 +167,6 @@ local function compute_layout(w, h, header_height)
 end
 
 --- setup -----------------------------------------------------------------
-
-local FONT_SMALL_SIZE = math.floor(math.min(WINDOW_WIDTH, WINDOW_HEIGHT) * 0.035)
-local FONT_BIG_SIZE = math.floor(math.min(WINDOW_WIDTH, WINDOW_HEIGHT) * 0.09)
-local HEADER_HEIGHT = FONT_SMALL_SIZE * 3
-
-local FONT_PATH = sdl.get_asset_path("assets/fonts/PressStart2P-Regular.ttf")
-
-local font_small = sdl.load_font(renderer, FONT_PATH, FONT_SMALL_SIZE)
-local font_big = sdl.load_font(renderer, FONT_PATH, FONT_BIG_SIZE)
-
-if font_small == nil or font_big == nil then
-    sdl.log_error(sdl.LOG_CATEGORY_APPLICATION, "Failed to load font from " .. FONT_PATH)
-    sdl.destroy_renderer(renderer)
-    sdl.destroy_window(window)
-    sdl.quit()
-    os.exit(1)
-end
 
 local pairs, cell, positions = compute_layout(WINDOW_WIDTH, WINDOW_HEIGHT, HEADER_HEIGHT)
 

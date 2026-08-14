@@ -22,7 +22,7 @@
 /* ASCII 32..126 (95 printable chars) baked into a single atlas texture. */
 #define FONT_FIRST_CHAR 32
 #define FONT_NUM_CHARS 95
-#define FONT_ATLAS_SIZE 1024
+#define FONT_ATLAS_SIZE 512
 
 typedef struct {
     SDL_Texture *atlas;
